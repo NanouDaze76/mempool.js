@@ -2,21 +2,21 @@ import { AddressInstance } from './bitcoin/addresses';
 import { BlockInstance } from './bitcoin/blocks';
 import { DifficultyInstance } from './bitcoin/difficulty';
 import { FeeInstance } from './bitcoin/fees';
+import { LightningInstance } from './bitcoin/lightning';
 import { MempoolInstance } from './bitcoin/mempool';
 import { TxInstance } from './bitcoin/transactions';
 import { WsInstance } from './bitcoin/websockets';
 
-import { AddressesInstance } from './bisq/addresses';
-import { BlocksInstance } from './bisq/blocks';
-import { StatsInstance } from './bisq/statistics';
-import { TransactionsInstance } from './bisq/transactions';
-import { MarketsInstance } from './bisq/markets';
-
 import { AssetsInstance } from './liquid/assets';
-import { BlockLiquidInstance } from './liquid/block';
+import { BlockLiquidInstance } from './liquid/blocks';
+import { TxLiquidInstance } from './liquid/transactions';
+import { WsLiquidInstance } from './liquid/websockets';
+import { AxiosRequestConfig } from 'axios';
 export interface MempoolConfig {
+  protocol?: 'http' | 'https';
   hostname?: string;
   network?: string;
+  config?: AxiosRequestConfig;
 }
 
 export interface MempoolReturn {
@@ -25,16 +25,10 @@ export interface MempoolReturn {
     blocks: BlockInstance;
     difficulty: DifficultyInstance;
     fees: FeeInstance;
+    lightning: LightningInstance
     mempool: MempoolInstance;
     transactions: TxInstance;
     websocket: WsInstance;
-  };
-  bisq: {
-    addresses: AddressesInstance;
-    blocks: BlocksInstance;
-    statistics: StatsInstance;
-    transactions: TransactionsInstance;
-    markets: MarketsInstance;
   };
   liquid: {
     assets: AssetsInstance;
@@ -42,23 +36,7 @@ export interface MempoolReturn {
     blocks: BlockLiquidInstance;
     fees: FeeInstance;
     mempool: MempoolInstance;
-    transactions: TxInstance;
-    websocket: WsInstance;
+    transactions: TxLiquidInstance;
+    websocket: WsLiquidInstance;
   };
-}
-export interface BisqMarketsReturn {
-  addresses: AddressesInstance;
-  blocks: BlocksInstance;
-  statistics: StatsInstance;
-  transactions: TransactionsInstance;
-  markets: MarketsInstance;
-}
-export interface LiquidNetworkReturn {
-  assets: AssetsInstance;
-  addresses: AddressInstance;
-  blocks: BlockLiquidInstance;
-  fees: FeeInstance;
-  mempool: MempoolInstance;
-  transactions: TxInstance;
-  websocket: WsInstance;
 }

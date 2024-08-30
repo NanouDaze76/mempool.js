@@ -32,13 +32,25 @@ Import the module.
 ```js
 import mempoolJS from '@mempool/mempool.js';
 
-// default mempool.space endpoints
-const { bitcoin, bisq, liquid } = mempoolJS();
+// default mempool.space endpointsconst { bitcoin, liquid } = mempoolJS();
 
 // (optional) your custom endpoints
-const { bitcoin, bisq, liquid } = mempoolJS({
-  hostname: 'mempool.space', 
-  network: 'testnet' // 'signet' | 'testnet' | 'mainnet'
+const { bitcoin } = mempoolJS({
+  protocol: 'https', // optional, defaults to http for localhost, otherwise https
+  hostname: 'mempool.space',
+  network: 'testnet' // 'signet' | 'testnet' | 'mainnet',
+  config: { // optional axios request config to add to requests
+    headers: {
+      authorization: 'Basic auth'
+    }
+  }
+});
+
+// Liquid API
+const { liquid } = mempoolJS({
+  protocol: 'https', // optional, defaults to http for localhost, otherwise https
+  hostname: 'liquid.network',
+  network: 'liquid' // 'liquid' | 'liquidtestnet'
 });
 ```
 
@@ -54,12 +66,20 @@ Call `mempoolJS()` function to access the API methods.
 
 ```js
 // default mempool.space endpoints
-const { bitcoin, bisq, liquid } = mempoolJS();
+const { bitcoin } = mempoolJS();
 
 // (optional) your custom endpoints
-const { bitcoin, bisq, liquid } = mempoolJS({
+const { bitcoin } = mempoolJS({
+  protocol: 'https', // optional, defaults to http for localhost, otherwise https
   hostname: 'mempool.space',
-  network: 'testnet' // 'signet' | 'testnet' | 'mainnet'
+  network: 'testnet', // 'signet' | 'testnet' | 'mainnet'
+});
+
+// Liquid API
+const { liquid } = mempoolJS({
+  protocol: 'https', // optional, defaults to http for localhost, otherwise https
+  hostname: 'liquid.network',
+  network: 'liquid' // 'liquid' | 'liquidtestnet'
 });
 ```
 
@@ -72,15 +92,10 @@ const { bitcoin, bisq, liquid } = mempoolJS({
   - [Blocks](./README-bitcoin.md#get-blocks)
   - [Difficulty Adjustment](./README-bitcoin.md#get-difficulty-adjustment)
   - [Fees](./README-bitcoin.md#get-fees)
+  - [Lightning](./README-bitcoin.md#get-network-stats)
   - [Mempool](./README-bitcoin.md#get-mempool)
   - [Transactions](./README-bitcoin.md#get-transactions)
-  - [Websocket Client](./README-bitcoin.md#Websocket-Client)
-  - [Websocket Server](./README-bitcoin.md#Websocket-Server)
-- [Bisq](./README-bisq.md#get-address)
-  - [Addresses](./README-bisq.md#get-address)
-  - [Blocks](./README-bisq.md#get-blocks)
-  - [Statistics](./README-bisq.md#get-statistics)
-  - [Transactions](./README-bisq.md#get-transactions)
+  - [Websocket](./README-bitcoin.md#init-websocket)
 - [Liquid](./README-liquid.md#get-address)
   - [Addresses](./README-liquid.md#get-address)
   - [Assets](./README-liquid.md#get-address)
@@ -88,8 +103,7 @@ const { bitcoin, bisq, liquid } = mempoolJS({
   - [Fees](./README-liquid.md#get-address)
   - [Mempool](./README-liquid.md#get-address)
   - [Transactions](./README-liquid.md#get-address)
-  - [Websocket Client](./README-liquid.md#Websocket-Client)
-  - [Websocket Server](./README-liquid.md#Websocket-Server)
+  - [Websocket](./README-liquid.md#init-websocket)
 
 ---
 

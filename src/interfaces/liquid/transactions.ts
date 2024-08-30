@@ -46,12 +46,11 @@ export interface TxOutspend {
   status: TxStatus;
 }
 
-export interface TxInstance {
+export interface TxLiquidInstance {
   getTx: (params: { txid: string }) => Promise<Tx>;
   getTxStatus: (params: { txid: string }) => Promise<TxStatus>;
   getTxHex: (params: { txid: string }) => Promise<string>;
   getTxRaw: (params: { txid: string }) => Promise<string>;
-  getTxMerkleBlockProof: (params: { txid: string }) => Promise<string>;
   getTxMerkleProof: (params: { txid: string }) => Promise<TxMerkleProof>;
   getTxOutspend: (params: {
     txid: string;

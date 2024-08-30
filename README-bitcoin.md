@@ -35,6 +35,22 @@ Interface to access Bitcoin `mainet`, `testnet`, `signet` APIs.
 - Fees
   - [Get Fees Recommended](#get-fees-recommended)
   - [Get Fees Mempool Blocks](#get-fees-mempool-blocks)
+- Lightning
+  - [Get Network Stats](#get-network-stats)
+  - [Get Nodes In Country](#get-nodes-in-country)
+  - [Get Nodes Stats Per Country](#get-nodes-stats-per-country)
+  - [Get Nodes Hosted by ISP](#get-nodes-hosted-by-isp)
+  - [Get ISP Ranking](#get-isp-ranking)
+  - [Get Liquidity Ranking](#get-liquidity-ranking)
+  - [Get Connectivity Ranking](#get-connectivity-ranking)
+  - [Get Oldest Nodes](#get-oldest-nodes)
+  - [Get Node Stats](#get-node-stats)
+  - [Get Historical Node Stats](#get-historical-node-stats)
+  - [Get Channel](#get-channel)
+  - [Get Channels From Transaction IDs](#get-channels-from-transaction-ids)
+  - [Get Channels From Node Public Key](#get-channels-from-node-public-key)
+  - [Get Channels Geodata](#get-channels-geodata)
+  - [Get Channels Geodata By Public Key](#get-channels-geodata-by-public-key)
 - Mempool
   - [Get Mempool](#get-mempool)
   - [Get Mempool Recent](#get-mempool-recent)
@@ -48,10 +64,24 @@ Interface to access Bitcoin `mainet`, `testnet`, `signet` APIs.
   - [Get Tx Merkle Proof](#get-tx-merkle-proof)
   - [Get Tx Outspend](#get-tx-outspend)
   - [Get Tx Outspends](#get-tx-outspends)
-  - [Post Tx Outspends]($post-tx-outspends)
+  - [Post Tx](#post-tx)
 - Websocket
-  - [Websocket Client](#websocket-client)
-  - [Websocket Server](#websocket-server)
+  - [Init Websocket](#init-websocket)
+  - [Want Data](#want-data)
+  - [Stop Want Data](#stop-want-data)
+  - [Track Address](#track-address)
+  - [Stop Track Address](#stop-track-address)
+  - [Track Addresses](#track-addresses)
+  - [Stop Track Addresses](#stop-track-addresses)
+  - [Track Transaction](#track-transaction)
+  - [Stop Track Transaction](#stop-track-transaction)
+  - [Track Rbf Summary](#track-rbf-summary)
+  - [Stop Track Rbf Summary](#stop-track-rbf-summary)
+  - [Track Rbf](#track-rbf)
+  - [Stop Track Rbf](#stop-track-rbf)
+  - [Track Mempool Block](#track-mempool-block)
+  - [Stop Track Mempool Block](#stop-track-mempool-block)
+
 
 ---
 
@@ -63,7 +93,7 @@ Returns details about an address. Available fields: `address`, `chain_stats`, an
 
 - {string} address
 
-[ [NodeJS Example](examples/nodejs/mempool-js/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/mempool-js/bitcoin/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/bitcoin/addresses.html) ] [ [Top](#features) ]
 
 ```js
 const {
@@ -84,7 +114,7 @@ Get transaction history for the specified address/scripthash, sorted with newest
 
 - {string} address
 
-[ [NodeJS Example](examples/nodejs/mempool-js/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/mempool-js/bitcoin/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/bitcoin/addresses.html) ] [ [Top](#features) ]
 
 ```js
 const {
@@ -105,7 +135,7 @@ Get confirmed transaction history for the specified address/scripthash, sorted w
 
 - {string} address
 
-[ [NodeJS Example](examples/nodejs/mempool-js/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/mempool-js/bitcoin/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/bitcoin/addresses.html) ] [ [Top](#features) ]
 
 ```js
 const {
@@ -126,7 +156,7 @@ Get unconfirmed transaction history for the specified `address/scripthash`. Retu
 
 - {string} address
 
-[ [NodeJS Example](examples/nodejs/mempool-js/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/mempool-js/bitcoin/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/bitcoin/addresses.html) ] [ [Top](#features) ]
 
 ```js
 const {
@@ -147,7 +177,7 @@ Get the list of unspent transaction outputs associated with the `address/scripth
 
 - {string} address
 
-[ [NodeJS Example](examples/nodejs/mempool-js/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/mempool-js/bitcoin/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/bitcoin/addresses.ts) ] [ [HTML Example](examples/html/bitcoin/addresses.html) ] [ [Top](#features) ]
 
 ```js
 const { addresses } = mempoolJS();
@@ -420,6 +450,267 @@ const feesMempoolBlocks = await fees.getFeesMempoolBlocks();
 console.log(feesMempoolBlocks);
 ```
 
+### **Get Network Stats**
+
+Returns network-wide stats such as total number of channels and nodes, total capacity, and average/median fee figures.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const networkStats = await lightning.getNetworkStats();
+console.log(networkStats);
+```
+
+### **Get Nodes In Country**
+
+Returns a list of Lightning nodes running on clearnet in the requested `:country`, where `:country` is an ISO Alpha-2 country code.
+
+**Parameters:**
+
+- {string} country
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const nodesInCountry = await lightning.getNodesInCountry({ country: 'US' });
+console.log(nodesInCountry);
+```
+
+### **Get Nodes Stats Per Country**
+
+Returns aggregate capacity and number of clearnet nodes per country. Capacity figures are in satoshis.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const nodesStatsPerCountry = await lightning.getNodesStatsPerCountry();
+console.log(nodesStatsPerCountry);
+```
+
+### **Get Nodes Hosted by ISP**
+
+Returns a list of nodes hosted by a specified `:isp`, where `:isp` is an ISP's ASN.
+
+**Parameters:**
+
+- {number} isp
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const nodesHostedByISP = await lightning.getNodesHostedByISP({ isp: 16509 });
+console.log(nodesHostedByISP);
+```
+
+### **Get ISP Ranking**
+
+Returns aggregate capacity, number of nodes, and number of channels per ISP. Capacity figures are in satoshis.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const ispRanking = await lightning.getISPRanking();
+console.log(ispRanking);
+```
+
+### **Get Liquidity Ranking**
+
+Returns a list of the top 100 nodes by liquidity (aggregate channel capacity).
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const liquidityRanking = await lightning.getLiquidityRanking();
+console.log(liquidityRanking);
+```
+
+### **Get Connectivity Ranking**
+
+Returns a list of the top 100 nodes by connectivity (number of open channels).
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const connectivityRanking = await lightning.getConnectivityRanking();
+console.log(connectivityRanking);
+```
+
+### **Get Oldest Nodes**
+
+Returns a list of the top 100 oldest nodes.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const oldestNodes = await lightning.getOldestNodes();
+console.log(oldestNodes);
+```
+
+### **Get Node Stats**
+
+Returns details about a node with the given `:public_key`.
+
+**Parameters:**
+
+- {string} public_key
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const nodeStats = await lightning.getNodeStats({ public_key });
+console.log(nodeStats);
+```
+
+### **Get Historical Node Stats**
+
+Returns historical stats for a node with the given `:public_key`.
+
+**Parameters:**
+
+- {string} public_key
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const historicalNodeStats = await lightning.getHistoricalNodeStats({ public_key });
+console.log(historicalNodeStats);
+```
+
+### **Get Channel**
+
+Returns details about a channel with the given `:id`.
+
+**Parameters:**
+
+- {string} id
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const channel = await lightning.getChannel({ id });
+console.log(channel);
+```
+
+### **Get Channels From Transaction IDs**
+
+Returns channels that correspond to the given `:txId` (multiple transaction IDs can be specified).
+
+**Parameters:**
+
+- {[]string} txId
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const channelsFromTransactionIDs = await lightning.getChannelsFromTransactionIDs({ txId });
+console.log(channelsFromTransactionIDs);
+```
+
+### **Get Channels From Node Public Key**
+
+Returns a list of a node's channels given its `:public_key`. Ten channels are returned at a time. Use `:index` for paging. `:status` can be `open`, `active`, or `closed`.
+
+**Parameters:**
+
+- {string} public_key
+- {string} status
+- {number} index
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const channelsFromNodePublicKey = await lightning.getChannelsFromNodePublicKey({ public_key, status, index });
+console.log(channelsFromNodePublicKey);
+```
+
+### **Get Channels Geodata**
+
+Returns a list of channels with corresponding node geodata.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const channelsGeodata = await lightning.getChannelsGeodata();
+console.log(channelsGeodata);
+```
+
+### **Get Channels Geodata By Public Key**
+
+Returns a list of channels with corresponding geodata for a node with the given `:public_key`.
+
+**Parameters:**
+
+- {string} public_key
+
+[ [NodeJS Example](examples/nodejs/bitcoin/lightning.ts) ] [ [HTML Example](examples/html/bitcoin/lightning.html) ] [ [Top](#features) ]
+
+```js
+const {
+  bitcoin: { lightning },
+} = mempoolJS();
+
+const channelsGeodataByPublicKey = await lightning.getChannelsGeodataByPublicKey({ public_key });
+console.log(channelsGeodataByPublicKey);
+```
+
+
 ### **Get Children Pay for Parent**
 
 Returns current mempool as projected blocks.
@@ -653,7 +944,7 @@ const txOutspends = await transactions.getTxOutspends({ txid });
 console.log(txOutspends);
 ```
 
-### **Post Tx Outspends**
+### **Post Tx **
 
 Broadcast a raw transaction to the network. The transaction should be provided as hex in the request body. The `txid` will be returned on success.
 
@@ -674,75 +965,157 @@ const postTx = await transactions.postTx({ txhex });
 console.log(postTx);
 ```
 
-### **Websocket**
+### **Init Websocket**
 
-Default push: `{ action: 'want', data: ['blocks', ...] }` to express what you want pushed. Available: blocks, mempool-block, live-2h-chart, and stats.
-
-Push transactions related to address: `{ 'track-address': '3PbJ...bF9B' }` to receive all new transactions containing that address as input or output. Returns an array of transactions. address-transactions for new mempool transactions, and block-transactions for new block confirmed transactions.
+Initializes a websocket connection.
 
 [ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
 
-#### **Websocket Server**
-
-Only use on server side apps.
-
 ```js
 const { bitcoin: { websocket } } = mempoolJS();
-
-const init = async () => {
-  
-  const ws = websocket.initServer({
-    options: ["blocks", "stats", "mempool-blocks", "live-2h-chart"],
-  });
-  
-  ws.on("message", function incoming(data) {
-    const res = JSON.parse(data.toString());
-    if (res.block) {
-      console.log(res.block);
-    }
-    if (res.mempoolInfo) {
-      console.log(res.mempoolInfo);
-    }
-    if (res.transactions) {
-      console.log(res.transactions);
-    }
-    if (res.mempoolBlocks) {
-      console.log(res.mempoolBlocks);
-    }
-  });
-}
-init();
+const ws = websocket.wsInit(); // for in-browser websocket, use websocket.wsInitBrowser
+ws.addEventListener('message', function incoming({data}) {
+  console.log(JSON.parse(data.toString()));
+});
 ```
 
-#### **Websocket Client**
+### **Want Data**
 
-Only use on browser apps.
+Subscribe to `want` data. Available: `blocks`, `mempool-block`, `live-2h-chart`, and `stats`.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
 
 ```js
-const init = async () => {
-  const {
-    bitcoin: { websocket },
-  } = mempoolJS();
-  
-  const ws = websocket.initClient({
-    options: ['blocks', 'stats', 'mempool-blocks', 'live-2h-chart'],
-  });
+websocket.wsWantData(ws, ['blocks', 'stats', 'mempool-blocks', 'live-2h-chart']); // for in-browser websocket, use websocket.wsWantDataBrowser
+```
 
-  ws.addEventListener('message', function incoming({data}) {
-    const res = JSON.parse(data.toString());
-    if (res.block) {
-      console.log(res.block);
-    }
-    if (res.mempoolInfo) {
-      console.log(res.mempoolInfo);
-    }
-    if (res.transactions) {
-      console.log(res.transactions);
-    }
-    if (res.mempoolBlocks) {
-      console.log(res.mempoolBlocks);
-    }
-  });
-};
-init();
+### **Stop Want Data**
+
+Unsubscribe from `want` data.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopData(ws); // for in-browser websocket, use websocket.wsStopDataBrowser
+```
+
+### **Track Address**
+
+Subscribe to address updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackAddress(ws, '1wizSAYSbuyXbt9d8JV8ytm5acqq2TorC'); // for in-browser websocket, use websocket.wsTrackAddressBrowser
+```
+
+### **Stop Track Address**
+
+Unsubscribe from address updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingAddress(ws, '1wizSAYSbuyXbt9d8JV8ytm5acqq2TorC'); // for in-browser websocket, use websocket.wsStopTrackingAddressBrowser
+```
+
+### **Track Addresses**
+
+Subscribe to multiple address updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackAddresses(ws, ['1wizSAYSbuyXbt9d8JV8ytm5acqq2TorC']); // for in-browser websocket, use websocket.wsTrackAddressesBrowser
+```
+
+### **Stop Track Addresses**
+
+Unsubscribe from multiple address updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingAddresses(ws); // for in-browser websocket, use websocket.wsStopTrackingAddressesBrowser
+```
+
+### **Track Transaction**
+
+Subscribe to transaction updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackTransaction(ws, '01313ca0148a1bbe5676e5dd6a84e76f8b39038658bd8c333d3b2d3f7ea6dd08'); // for in-browser websocket, use websocket.wsTrackTransactionBrowser
+```
+
+### **Stop Track Transaction**
+
+Unsubscribe from transaction updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingTransaction(ws); // for in-browser websocket, use websocket.wsStopTrackingTransactionBrowser
+```
+
+### **Track Rbf Summary**
+
+Subscribe to RBF summary updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackRbfSummary(ws); // for in-browser websocket, use websocket.wsTrackRbfSummaryBrowser
+```
+
+### **Stop Track Rbf Summary**
+
+Unsubscribe from RBF summary updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingRbfSummary(ws); // for in-browser websocket, use websocket.wsStopTrackingRbfSummaryBrowser
+```
+
+### **Track Rbf**
+
+Subscribe to RBF updates. Set the second parameter to `true` to track Full RBF.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackRbf(ws, true); // for in-browser websocket, use websocket.wsTrackRbfBrowser
+```
+
+### **Stop Track Rbf**
+
+Unsubscribe from RBF updates.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingRbf(ws); // for in-browser websocket, use websocket.wsStopTrackingRbfBrowser
+```
+
+### **Track Mempool Block**
+
+Subscribe to mempool blocks.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackMempoolBlock(ws, 1); // for in-browser websocket, use websocket.wsTrackMempoolBlockBrowser
+```
+
+### **Stop Track Mempool Block**
+
+Unsubscribe from mempool blocks.
+
+[ [NodeJS Example](examples/nodejs/bitcoin/websocket.ts) ] [ [HTML Example](examples/html/bitcoin/websocket.html) ] [ [Top](#features) ]
+
+```js
+
+websocket.wsStopTrackingMempoolBlock(ws); // for in-browser websocket, use websocket.wsStopTrackingMempoolBlockBrowser
 ```

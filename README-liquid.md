@@ -43,14 +43,22 @@ Interface to access Liquid APIs.
   - [Get Tx Status](#get-tx-status)
   - [Get Tx Hex](#get-tx-hex)
   - [Get Tx Raw](#get-tx-raw)
-  - [Get Tx Merkle Block Proof](#get-tx-merkle-block-proof)
   - [Get Tx Merkle Proof](#get-tx-merkle-proof)
   - [Get Tx Outspend](#get-tx-outspend)
   - [Get Tx Outspends](#get-tx-outspends)
-  - [Post Tx Outspends]($post-tx-outspends)
+  - [Post Tx](#post-tx)
 - Websocket
-  - [Websocket Client](#websocket-client)
-  - [Websocket Server](#websocket-server)
+  - [Init Websocket](#init-websocket)
+  - [Want Data](#want-data)
+  - [Stop Want Data](#stop-want-data)
+  - [Track Address](#track-address)
+  - [Stop Track Address](#stop-track-address)
+  - [Track Addresses](#track-addresses)
+  - [Stop Track Addresses](#stop-track-addresses)
+  - [Track Transaction](#track-transaction)
+  - [Stop Track Transaction](#stop-track-transaction)
+  - [Track Mempool Block](#track-mempool-block)
+  - [Stop Track Mempool Block](#stop-track-mempool-block)
 
 ---
 
@@ -163,7 +171,7 @@ Returns information about a Liquid asset.
 
 - {string} asset_id
 
-[ [NodeJS Example](examples/nodejs/liquid/addresses.ts) ] [ [HTML Example](examples/html/liquid/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/liquid/assets.ts) ] [ [HTML Example](examples/html/liquid/assets.html) ] [ [Top](#features) ]
 
 ```js
 const {
@@ -186,7 +194,7 @@ Returns transactions associated with the specified Liquid asset. For the network
 - {string} asset_id
 - {boolean} is_mempool
 
-[ [NodeJS Example](examples/nodejs/liquid/addresses.ts) ] [ [HTML Example](examples/html/liquid/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/liquid/assets.ts) ] [ [HTML Example](examples/html/liquid/assets.html) ] [ [Top](#features) ]
 
 ```js
 const {
@@ -209,7 +217,7 @@ Get the current total supply of the specified asset. For the native asset (L-BTC
 - {string} asset_id
 - {boolean} decimal
 
-[ [NodeJS Example](examples/nodejs/liquid/addresses.ts) ] [ [HTML Example](examples/html/liquid/addresses.html) ] [ [Top](#features) ]
+[ [NodeJS Example](examples/nodejs/liquid/assets.ts) ] [ [HTML Example](examples/html/liquid/assets.html) ] [ [Top](#features) ]
 
 ```js
 const {
@@ -582,27 +590,6 @@ const txRaw = await transactions.getTxRaw({ txid });
 console.log(txRaw);
 ```
 
-### **Get Tx Merkle Block Proof**
-
-Returns a merkle inclusion proof for the transaction using bitcoind's merkleblock format.
-
-**Parameters:**
-
-- {string} txid
-
-[ [NodeJS Example](examples/nodejs/liquid/transactions.ts) ] [ [HTML Example](examples/html/liquid/transactions.html) ] [ [Top](#features) ]
-
-```js
-const {
-  liquid: { transactions },
-} = mempoolJS();
-
-const txid = '15e10745f15593a899cef391191bdd3d7c12412cc4696b7bcb669d0feadc8521';
-
-const txMerkleBlockProof = await transactions.getTxMerkleBlockProof({ txid });
-console.log(txMerkleBlockProof);
-```
-
 ### **Get Tx Merkle Proof**
 
 Returns a merkle inclusion proof for the transaction using Electrum's blockchain.transaction.get_merkle format.
@@ -670,7 +657,7 @@ const txOutspends = await transactions.getTxOutspends({ txid });
 console.log(txOutspends);
 ```
 
-### **Post Tx Outspends**
+### **Post Tx **
 
 Broadcast a raw transaction to the network. The transaction should be provided as hex in the request body. The `txid` will be returned on success.
 
@@ -691,75 +678,117 @@ const postTx = await transactions.postTx({ txhex });
 console.log(postTx);
 ```
 
-### **Websocket**
+### **Init Websocket**
 
-Default push: `{ action: 'want', data: ['blocks', ...] }` to express what you want pushed. Available: blocks, mempool-block, live-2h-chart, and stats.
-
-Push transactions related to address: `{ 'track-address': '3PbJ...bF9B' }` to receive all new transactions containing that address as input or output. Returns an array of transactions. address-transactions for new mempool transactions, and block-transactions for new block confirmed transactions.
+Initializes a websocket connection.
 
 [ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
 
-#### **Websocket Server**
-
-Only use on server side apps.
-
 ```js
-const { liquid: { websocket } } = mempoolJS();
-
-const init = async () => {
-  
-  const ws = websocket.initServer({
-    options: ["blocks", "stats", "mempool-blocks", "live-2h-chart"],
-  });
-  
-  ws.on("message", function incoming(data) {
-    const res = JSON.parse(data.toString());
-    if (res.blocks) {
-      console.log(res.blocks);
-    }
-    if (res.mempoolInfo) {
-      console.log(res.mempoolInfo);
-    }
-    if (res.transactions) {
-      console.log(res.transactions);
-    }
-    if (res.mempoolBlocks) {
-      console.log(res.mempoolBlocks);
-    }
-  });
-}
-init();
+const { liquid: { websocket } } = mempoolJS( {hostname: 'liquid.network'} );
+const ws = websocket.wsInit(); // for in-browser websocket, use websocket.wsInitBrowser
+ws.addEventListener('message', function incoming({data}) {
+  console.log(JSON.parse(data.toString()));
+});
 ```
 
-#### **Websocket Client**
+### **Want Data**
 
-Only use on browser apps.
+Subscribe to `want` data. Available: `blocks`, `mempool-block`, `live-2h-chart`, and `stats`.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
 
 ```js
-const init = async () => {
-  const {
-    liquid: { websocket },
-  } = mempoolJS();
-  
-  const ws = websocket.initClient({
-    options: ['blocks', 'stats', 'mempool-blocks', 'live-2h-chart'],
-  });
+websocket.wsWantData(ws, ['blocks', 'stats', 'mempool-blocks', 'live-2h-chart']); // for in-browser websocket, use websocket.wsWantDataBrowser
+```
 
-  ws.addEventListener('message', function incoming({data}) {
-    const res = JSON.parse(data.toString());
-    if (res.blocks) {
-      console.log(res.blocks);
-    }
-    if (res.mempoolInfo) {
-      console.log(res.mempoolInfo);
-    }
-    if (res.transactions) {
-      console.log(res.transactions);
-    }
-    if (res.mempoolBlocks) {
-      console.log(res.mempoolBlocks);
-    }
-  });
-};
-init();
+### **Stop Want Data**
+
+Unsubscribe from `want` data.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopData(ws); // for in-browser websocket, use websocket.wsStopDataBrowser
+```
+
+### **Track Address**
+
+Subscribe to address updates.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackAddress(ws, 'GiAi95k5JUPNPoDGNzSUZ8vWMijSiSMTon'); // for in-browser websocket, use websocket.wsTrackAddressBrowser
+```
+
+### **Stop Track Address**
+
+Unsubscribe from address updates.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingAddress(ws); // for in-browser websocket, use websocket.wsStopTrackingAddressBrowser
+```
+
+### **Track Addresses**
+
+Subscribe to multiple addresses updates.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackAddresses(ws, ['GiAi95k5JUPNPoDGNzSUZ8vWMijSiSMTon']); // for in-browser websocket, use websocket.wsTrackAddressesBrowser
+```
+
+### **Stop Track Addresses**
+
+Unsubscribe from multiple addresses updates.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingAddresses(ws); // for in-browser websocket, use websocket.wsStopTrackingAddressesBrowser
+```
+
+### **Track Transaction**
+
+Subscribe to a transaction updates.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackTransaction(ws, '23195d459a70875c3b1f9fb9082acc9f0594f1c63dac71b40f2ff7298630a421'); // for in-browser websocket, use websocket.wsTrackTransactionBrowser()
+```
+
+### **Stop Track Transaction**
+
+Unsubscribe from a transaction updates.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsStopTrackingTransaction(ws); // for in-browser websocket, use websocket.wsStopTrackingTransactionBrowser
+```
+
+### **Track Mempool Block**
+
+Subscribe to mempool blocks.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+websocket.wsTrackMempoolBlock(ws, 1); // for in-browser websocket, use websocket.wsTrackMempoolBlockBrowser
+```
+
+### **Stop Track Mempool Block**
+
+Unsubscribe from mempool blocks.
+
+[ [NodeJS Example](examples/nodejs/liquid/websocket.ts) ] [ [HTML Example](examples/html/liquid/websocket.html) ] [ [Top](#features) ]
+
+```js
+
+websocket.wsStopTrackingMempoolBlock(ws); // for in-browser websocket, use websocket.wsStopTrackingMempoolBlockBrowser
 ```
